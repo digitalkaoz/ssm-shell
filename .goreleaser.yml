@@ -1,5 +1,6 @@
 project_name: ssm-shell
 
+version: 2
 before:
   hooks:
     # You may remove this if you don't use go modules.
@@ -19,7 +20,7 @@ checksum:
   name_template: 'checksums.txt'
 
 snapshot:
-  name_template: "{{ incpatch .Version }}-next"
+  version_template: "{{ incpatch .Version }}-next"
 
 changelog:
   sort: asc
