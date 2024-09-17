@@ -2,9 +2,11 @@
 
 > connect to ECS containers or EC2 Instances with ease.
 
+![Example of SSM-Shell](/examples/example.png)
+
 ## Usage
 
-Download binary from here:
+Download your binary from [here](https://github.com/digitalkaoz/ssm-shell/releases)
 
 simply prepend the binary call with your AWS environment, e.g.
 
