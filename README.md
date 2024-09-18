@@ -21,12 +21,13 @@ $ go get
 $ AWS_PROFILE=xyz AWS_REGION=eu-central-1 go run .
 ```
 
-To build and distribute the binary:
+To build the binary locally:
 
+```shell
 $ goreleaser build --snapshot --clean
 $ cp ./dist/ssm_shell_xxx/ssm-shell /usr/local/bin/ssm_shell
 $ chmod a+x /usr/local/bin/ssm_shell
-
+```
 
 ## TODO
 
