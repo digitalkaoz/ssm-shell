@@ -2,15 +2,20 @@ package main
 
 import (
 	"fmt"
-	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ecs"
+	"github.com/aws/aws-sdk-go/service/ecs/ecsiface"
 	tea "github.com/charmbracelet/bubbletea"
 )
 
 type clusterMsg []*string
 
 func getClusters() tea.Msg {
-	result, err := listClusters()
+	client, err := createEcsService()
+	if err != nil {
+		return errorMsg(fmt.Sprintf("Error listing clusters: %s", err))
+	}
+
+	result, err := listClusters(client)
 	if err != nil {
 		return errorMsg(fmt.Sprintf("Error listing clusters: %s", err))
 	}
@@ -40,20 +45,23 @@ func clusterUpdate(m *State, msg tea.Msg) (*State, tea.Cmd) {
 	)
 }
 
-func listClusters() ([]*string, error) {
-	sess, err := createAwsSession()
-	if err != nil {
-		return nil, err
-	}
-	svc := ecs.New(sess)
+func listClusters(client ecsiface.ECSAPI) ([]*string, error) {
+	var clusters []*string
 
-	result, err := svc.ListClusters(&ecs.ListClustersInput{
-		MaxResults: aws.Int64(100),
-	})
-	//TODO paging
+	input := &ecs.ListClustersInput{}
 
-	if err != nil {
-		return nil, err
+	for {
+		resp, err := client.ListClusters(input)
+		if err != nil {
+			return nil, err
+		}
+		clusters = append(clusters, resp.ClusterArns...)
+
+		if resp.NextToken == nil {
+			break
+		}
+		input.NextToken = resp.NextToken
 	}
-	return result.ClusterArns, nil
+
+	return clusters, nil
 }

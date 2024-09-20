@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ecs"
+	"github.com/aws/aws-sdk-go/service/ecs/ecsiface"
 	tea "github.com/charmbracelet/bubbletea"
 )
 
@@ -16,7 +17,11 @@ func getTasksCmd(clusterArn string, serviceArn string) tea.Cmd {
 }
 
 func getTasksMsg(clusterArn string, serviceArn string) tea.Msg {
-	result, err := listTasks(clusterArn, serviceArn)
+	client, err := createEcsService()
+	if err != nil {
+		return errorMsg(fmt.Sprintf("Error creating ECS client: %s", err))
+	}
+	result, err := listTasks(clusterArn, serviceArn, client)
 	if err != nil {
 		return errorMsg(fmt.Sprintf("Error listing tasks: %s", err))
 	}
@@ -53,22 +58,25 @@ func taskUpdate(m *State, msg tea.Msg) (*State, tea.Cmd) {
 	)
 }
 
-func listTasks(clusterArn string, serviceArn string) ([]*string, error) {
-	sess, err := createAwsSession()
-	if err != nil {
-		return nil, err
-	}
-	svc := ecs.New(sess)
-
-	result, err := svc.ListTasks(&ecs.ListTasksInput{
+func listTasks(clusterArn string, serviceArn string, client ecsiface.ECSAPI) ([]*string, error) {
+	input := &ecs.ListTasksInput{
 		Cluster:     aws.String(clusterArn),
 		ServiceName: aws.String(serviceArn),
 		MaxResults:  aws.Int64(100),
-	})
-	//TODO paging
-
-	if err != nil {
-		return nil, err
 	}
-	return result.TaskArns, nil
+
+	var tasks []*string
+	for {
+		result, err := client.ListTasks(input)
+		if err != nil {
+			return nil, err
+		}
+		tasks = append(tasks, result.TaskArns...)
+		if result.NextToken == nil {
+			break
+		}
+		input.NextToken = result.NextToken
+	}
+
+	return tasks, nil
 }

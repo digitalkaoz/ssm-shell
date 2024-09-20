@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ecs"
+	"github.com/aws/aws-sdk-go/service/ecs/ecsiface"
 	tea "github.com/charmbracelet/bubbletea"
 )
 
@@ -15,7 +16,11 @@ func getServicesCmd(clusterArn string) tea.Cmd {
 	}
 }
 func getServicesMsg(clusterArn string) tea.Msg {
-	result, err := listServices(clusterArn)
+	client, err := createEcsService()
+	if err != nil {
+		return errorMsg(fmt.Sprintf("Error creating ECS client: %s", err))
+	}
+	result, err := listServices(clusterArn, client)
 	if err != nil {
 		return errorMsg(fmt.Sprintf("Error listing services: %s", err))
 	}
@@ -51,21 +56,21 @@ func serviceUpdate(m *State, msg tea.Msg) (*State, tea.Cmd) {
 	)
 }
 
-func listServices(clusterArn string) ([]*string, error) {
-	sess, err := createAwsSession()
-	if err != nil {
-		return nil, err
+func listServices(clusterArn string, client ecsiface.ECSAPI) ([]*string, error) {
+	var services []*string
+	input := &ecs.ListServicesInput{
+		Cluster: aws.String(clusterArn),
 	}
-	svc := ecs.New(sess)
-
-	result, err := svc.ListServices(&ecs.ListServicesInput{
-		Cluster:    aws.String(clusterArn),
-		MaxResults: aws.Int64(100),
-	})
-	//TODO paging
-
-	if err != nil {
-		return nil, err
+	for {
+		result, err := client.ListServices(input)
+		if err != nil {
+			return nil, err
+		}
+		services = append(services, result.ServiceArns...)
+		if result.NextToken == nil {
+			break
+		}
+		input.NextToken = result.NextToken
 	}
-	return result.ServiceArns, nil
+	return services, nil
 }

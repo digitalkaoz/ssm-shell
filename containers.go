@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ecs"
+	"github.com/aws/aws-sdk-go/service/ecs/ecsiface"
 	tea "github.com/charmbracelet/bubbletea"
 	"os/exec"
 )
@@ -22,7 +23,11 @@ func getContainersCmd(clusterArn string, tasArn string) tea.Cmd {
 }
 
 func getContainersMsg(clusterArn string, taskArn string) tea.Msg {
-	result, err := listContainers(clusterArn, taskArn)
+	client, err := createEcsService()
+	if err != nil {
+		return errorMsg(fmt.Sprintf("Error creating ECS client: %s", err))
+	}
+	result, err := listContainers(clusterArn, taskArn, client)
 	if err != nil {
 		return errorMsg(fmt.Sprintf("Error listing containers: %s", err))
 	}
@@ -68,14 +73,8 @@ func containerUpdate(m *State, msg tea.Msg) (*State, tea.Cmd) {
 		},
 	)
 }
-func listContainers(clusterArn string, taskArn string) ([]*string, error) {
-	sess, err := createAwsSession()
-	if err != nil {
-		return nil, err
-	}
-	svc := ecs.New(sess)
-
-	result, err := svc.DescribeTasks(&ecs.DescribeTasksInput{
+func listContainers(clusterArn string, taskArn string, client ecsiface.ECSAPI) ([]*string, error) {
+	result, err := client.DescribeTasks(&ecs.DescribeTasksInput{
 		Cluster: aws.String(clusterArn),
 		Tasks:   []*string{&taskArn},
 	})

@@ -6,7 +6,7 @@
 
 ## Usage
 
-Download your binary from [here](https://github.com/digitalkaoz/ssm-shell/releases)
+Download your binary from [here](https://github.com/digitalkaoz/ssm-shell/releases) 
 
 simply prepend the binary call with your AWS environment, e.g.
 
