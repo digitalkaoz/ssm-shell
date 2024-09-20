@@ -32,3 +32,9 @@ jobs:
 
       - name: test
         run: go test ./... -v -coverprofile=coverage.out
+
+      - name: Run GoReleaser
+        uses: goreleaser/goreleaser-action@v2
+        with:
+          version: latest
+          args: build --snapshot --clean
