@@ -20,7 +20,8 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - uses: actions/cache@v4
+      - name: Restore Pipeline Caches
+        uses: actions/cache@v4
         with:
           path: |
             ~/.cache/go-build
@@ -30,6 +31,7 @@ jobs:
             ${{ runner.os }}-go-
       - name: Get Dependencies
         run: go get
+
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v6
         env:
@@ -40,5 +42,5 @@ jobs:
           MACOS_NOTARY_ISSUER_ID: ${{ secrets.MACOS_NOTARY_ISSUER_ID }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          version: latest
+          version: '~> v2'
           args: release --clean
