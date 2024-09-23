@@ -13,6 +13,7 @@ import (
 
 type instancesMsg []*string
 
+// bubbletea command generator
 func getEc2ConnectCmd(instanceId string, callback func(err error) tea.Msg) tea.Cmd {
 	re := regexp.MustCompile(`\((.+)\)`)
 	matches := re.FindStringSubmatch(instanceId)
@@ -37,6 +38,7 @@ func getInstances() tea.Msg {
 	return instancesMsg(result)
 }
 
+// bubbletea view handler
 func instanceView(m *State) string {
 	heading := fmt.Sprintf(`service type: %s
 Please choose instance where to connect to:
@@ -47,6 +49,7 @@ Please choose instance where to connect to:
 	return chooseView(m, heading, m.instances)
 }
 
+// bubbletea update handler
 func instanceUpdate(m *State, msg tea.Msg) (*State, tea.Cmd) {
 	return chooseUpdate(m, msg, len(m.instances)-1,
 		func(m *State) { m.connectService = "" },
