@@ -11,7 +11,7 @@ Download your binary from [here](https://github.com/digitalkaoz/ssm-shell/releas
 simply prepend the binary call with your AWS environment, e.g.
 
 ```shell
-$ AWS_PROFILE=xyz AWS_REGION=eu-central-1 ecs-shell
+$ AWS_PROFILE=xyz AWS_REGION=eu-central-1 ssm-shell
 
 ```
 ## Development
@@ -25,8 +25,8 @@ To build the binary locally:
 
 ```shell
 $ goreleaser build --snapshot --clean
-$ cp ./dist/ssm_shell_xxx/ssm-shell /usr/local/bin/ssm_shell
-$ chmod a+x /usr/local/bin/ssm_shell
+$ cp ./dist/ssm_shell_xxx/ssm-shell /usr/local/bin/ssm-shell
+$ chmod a+x /usr/local/bin/ssm-shell
 ```
 
 ## TODO

@@ -1,27 +1,36 @@
 package main
 
 import (
+	"errors"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/ec2"
 	"github.com/aws/aws-sdk-go/service/ec2/ec2iface"
 	"github.com/aws/aws-sdk-go/service/ecs"
+	"os"
 )
 
 var ec2Client ec2iface.EC2API
 var ecsClient *ecs.ECS
 
-func SetEcsClient(client *ecs.ECS) {
-	ecsClient = client
-}
-
-func SetEc2Client(client ec2iface.EC2API) {
-	ec2Client = client
+func getAwsRegion() string {
+	if os.Getenv("AWS_DEFAULT_REGION") != "" {
+		return os.Getenv("AWS_DEFAULT_REGION")
+	}
+	if os.Getenv("AWS_REGION") != "" {
+		return os.Getenv("AWS_REGION")
+	}
+	return ""
 }
 
 func createAwsSession() (*session.Session, error) {
+	region := getAwsRegion()
+	if region == "" {
+		return nil, errors.New("no AWS_REGION configured")
+	}
+
 	sess, err := session.NewSession(&aws.Config{
-		Region: aws.String("eu-central-1"),
+		Region: aws.String(region),
 	})
 	if err != nil {
 		return nil, err

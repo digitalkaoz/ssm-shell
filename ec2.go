@@ -17,8 +17,11 @@ func ec2Update(m *State, msg tea.Msg) (tea.Model, tea.Cmd) {
 			})
 		}
 
-	case errorMsg, emptyMsg:
-		m.error = msg.(string)
+	case errorMsg:
+		m.error = string(msg)
+		return m, nil
+	case emptyMsg:
+		m.error = string(msg)
 		return m, nil
 	}
 
