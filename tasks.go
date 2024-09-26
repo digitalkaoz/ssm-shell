@@ -47,7 +47,7 @@ Please choose task where to connect to:
 }
 
 func taskUpdate(m *State, msg tea.Msg) (*State, tea.Cmd) {
-	return chooseUpdate(m, msg, len(m.clusters)-1,
+	return chooseUpdate(m, msg, len(m.tasks)-1,
 		func(m *State) { m.selectedService = "" },
 		func(m *State) (*State, tea.Cmd) {
 			m.selectedTask = *m.tasks[m.cursor]
