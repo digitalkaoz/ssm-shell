@@ -10,7 +10,7 @@ func ecsUpdate(m *State, msg tea.Msg) (tea.Model, tea.Cmd) {
 	case clusterMsg:
 		m.clusters = msg
 		if len(m.clusters) == 1 {
-			m.selectedCluster = *m.services[0]
+			m.selectedCluster = *m.clusters[0]
 			return m, getServicesCmd(m.selectedCluster)
 		}
 	case servicesMsg:
