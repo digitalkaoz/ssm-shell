@@ -56,7 +56,7 @@ Please choose container where to connect to:
 }
 
 func containerUpdate(m *State, msg tea.Msg) (*State, tea.Cmd) {
-	return chooseUpdate(m, msg, len(m.clusters)-1,
+	return chooseUpdate(m, msg, len(m.containers)-1,
 		func(m *State) { m.selectedTask = "" },
 		func(m *State) (*State, tea.Cmd) {
 			m.selectedContainer = *m.containers[m.cursor]
